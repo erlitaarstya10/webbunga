@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fresh Flowers Shop</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f7f7f7;
+        }
+        header {
+            background: #ffb7c5;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .container {
+            width: 90%;
+            margin: auto;
+            padding: 20px;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .product {
+            background: white;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+        .product img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        .btn {
+            background: #ffb7c5;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 8px;
+        }
+        .btn:hover {
+            background: #ff5c8b;
+        }
+        #cart {
+            background: white;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .remove-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <nav style="background:#ffb7c5; padding:15px; text-align:center;">
+    <a href="#" style="margin:0 15px; color:white; font-weight:bold; text-decoration:none;">Home</a>
+    <a href="#produk" style="margin:0 15px; color:white; font-weight:bold; text-decoration:none;">Produk</a>
+    <a href="#contact" style="margin:0 15px; color:white; font-weight:bold; text-decoration:none;">Kontak</a>
+</nav>
+<header>Fresh Flowers Shop</header>
+
+    <div class="container">
+        <input type="text" id="searchInput" placeholder="Cari bunga..." style="width:100%; padding:10px; margin-bottom:20px; border-radius:8px; border:1px solid #ccc;" onkeyup="searchProduct()">
+        <h2>Produk Bunga Segar</h2>
+        <div id="cart" style="background:white; padding:15px; border-radius:10px; margin-bottom:20px; display:none; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+            <h3>Keranjang Belanja</h3>
+            <ul id="cartItems" style="text-align:left; padding-left:20px;"></ul>
+            <p><strong>Total: Rp <span id="totalPrice">0</span></strong></p>
+        </div>
+        <div class="product-grid">
+            <div class="product">
+                <img id="img1" src="images/mawar.jpg" alt="Bouquet Mawar">
+                <h3>Bouquet Mawar</h3>
+                <p>Rp 150.000</p>
+                <input type="file" accept="image/*" onchange="uploadImage(event, 'img1','img1Store')">
+                <button class="btn" onclick="addToCart(this)">Beli Sekarang</button>
+            </div>
+
+            <div class="product">
+                <img id="img2" src="images/tulip.png" alt="Tulip Pink">
+                <h3>Tulip Pink</h3>
+                <p>Rp 180.000</p>
+                <input type="file" accept="image/*" onchange="uploadImage(event, 'img2','img2Store')">
+                <button class="btn" onclick="addToCart(this)">Beli Sekarang</button>
+            </div>
+
+            <div class="product">
+                <img id="img3" src="images/lily.jpg" alt="Lily White">
+                <h3>Lily White</h3>
+                <p>Rp 170.000</p>
+                <input type="file" accept="image/*" onchange="uploadImage(event, 'img3','img3Store')">
+                <button class="btn" onclick="addToCart(this)">Beli Sekarang</button>
+            </div>
+        </div>
+
+        <div id="cart">
+            <h2>Keranjang Belanja</h2>
+            <ul id="cart-items"></ul>
+            <p><b>Total: Rp <span id="total">0</span></b></p>
+            <button class="btn" onclick="addToCart(this)">Beli Sekarang</button>
+        </div>
+    </div>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        function addToCart(name, price) {
+            cart.push({name, price});
+            updateCart();
+        }
+
+        function removeItem(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function updateCart() {
+            const list = document.getElementById('cart-items');
+            const totalEl = document.getElementById('total');
+            list.innerHTML = '';
+
+            let total = 0;
+            cart.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.textContent = `${item.name} - Rp ${item.price.toLocaleString()}`;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = 'Hapus';
+                removeBtn.className = 'remove-btn';
+                removeBtn.onclick = () => removeItem(index);
+
+                li.appendChild(removeBtn);
+                list.appendChild(li);
+                total += item.price;
+            });
+
+            totalEl.textContent = total.toLocaleString();
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        updateCart();
+
+        function uploadImage(event, imgId, storageKey) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                const img = document.getElementById(imgId);
+                img.src = reader.result;
+                localStorage.setItem(storageKey, reader.result);
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function loadSavedImages() {
+            const images = ['img1Store','img2Store','img3Store'];
+            images.forEach((key, index)=>{
+                const data = localStorage.getItem(key);
+                if(data) document.getElementById(`img${index+1}`).src = data;
+            });
+        }
+
+        loadSavedImages();
+
+        function checkout() {
+            if(cart.length === 0){
+                alert('Keranjang masih kosong!');
+                return;
+            }
+            alert('Checkout berhasil! Data pembayaran hanya simulasi :)');
+        }
+    </script>
+<div id="cart">
+    <h2>Keranjang Belanja</h2>
+    <ul id="cartItems"></ul>
+    <h3>Total: Rp <span id="cartTotal">0</span></h3>
+</div>
+
+<script>
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+function addToCart(name, price) {
+    cart.push({ name, price });
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCartUI();
+}
+
+function updateCartUI() {
+    let cartList = document.getElementById("cartItems");
+    let total = 0;
+    cartList.innerHTML = "";
+    
+    cart.forEach((item, index) => {
+        total += item.price;
+        let li = document.createElement("li");
+        li.textContent = item.name + " - Rp " + item.price;
+        cartList.appendChild(li);
+    });
+    document.getElementById("cartTotal").textContent = total;
+}
+
+updateCartUI();
+</script>
+<script>
+function searchProduct() {
+  const input = document.getElementById('searchInput').value.toLowerCase();
+  const products = document.querySelectorAll('.product');
+  products.forEach(product => {
+    const name = product.querySelector('h3').innerText.toLowerCase();
+    product.style.display = name.includes(input) ? 'block' : 'none';
+  });
+}
+</script>
+<footer style="background:#ffb7c5; text-align:center; padding:20px; color:white; margin-top:30px;">
+    © 2025 Fresh Flowers Shop | All Rights Reserved
+</footer>
+<script>
+let total = 0;
+function addToCart(button) {
+  const product = button.parentElement;
+  const name = product.querySelector('h3').innerText;
+  const priceText = product.querySelector('p').innerText.replace(/Rp |\./g, '');
+  const price = parseInt(priceText);
+  total += price;
+  document.getElementById('cart').style.display = 'block';
+  const li = document.createElement('li');
+  li.innerText = name + " - Rp " + price.toLocaleString('id-ID');
+  document.getElementById('cartItems').appendChild(li);
+  document.getElementById('totalPrice').innerText = total.toLocaleString('id-ID');
+}
+</script>
+</body>
+</html>
